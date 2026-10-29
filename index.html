@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Manager</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f4f4f4; }
+    .box { background: white; padding: 20px; border-radius: 8px; }
+    input, button { padding: 10px; margin: 5px 0; }
+    input { width: 65%; }
+    button { cursor: pointer; }
+    li { margin: 12px 0; display: flex; gap: 8px; align-items: center; }
+    li span { flex: 1; }
+    li.completed span { text-decoration: line-through; color: #777; }
+    li button { padding: 4px 8px; margin: 0; }
+    #message { min-height: 1.4em; font-weight: bold; }
+    #message.ok { color: #1a7f37; }
+    #message.err { color: #c62828; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Task Manager</h2>
+    <form id="taskForm">
+      <input id="title" placeholder="Enter task name">
+      <button type="submit">Add Task</button>
+    </form>
+    <p id="message" role="status"></p>
+    <h3>Task List</h3>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const API = "http://127.0.0.1:5000";
+    const form = document.getElementById("taskForm");
+    const titleInput = document.getElementById("title");
+    const message = document.getElementById("message");
+    const taskList = document.getElementById("taskList");
+
+    function say(text, kind) {
+      message.textContent = text;
+      message.className = kind || "";
+    }
+
+    async function loadTasks() {
+      say("Loading tasks...");
+      try {
+        const response = await fetch(`${API}/tasks`);
+        if (!response.ok) throw new Error("Unable to load tasks");
+        const tasks = await response.json();
+        taskList.replaceChildren();
+        tasks.forEach(task => {
+          const li = document.createElement("li");
+          li.className = task.status;
+          const label = document.createElement("span");
+          label.textContent = `${task.title} - ${task.status}`;
+          const toggle = document.createElement("button");
+          toggle.textContent = task.status === "pending" ? "Complete" : "Reopen";
+          toggle.onclick = () => updateTask(task, {
+            status: task.status === "pending" ? "completed" : "pending"
+          });
+          const edit = document.createElement("button");
+          edit.textContent = "Edit";
+          edit.onclick = () => {
+            const t = prompt("New title:", task.title);
+            if (t !== null) updateTask(task, { title: t });
+          };
+          const del = document.createElement("button");
+          del.textContent = "Delete";
+          del.onclick = () => deleteTask(task.id);
+          li.append(label, toggle, edit, del);
+          taskList.appendChild(li);
+        });
+        say("Tasks loaded successfully", "ok");
+      } catch (error) {
+        taskList.replaceChildren();
+        say("Unable to connect to the server. Please try again.", "err");
+      }
+    }
+
+    async function updateTask(task, changes) {
+      try {
+        const body = { title: task.title, status: task.status, ...changes };
+        const response = await fetch(`${API}/tasks/${task.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Unable to update task");
+        await loadTasks();
+        say("Task updated successfully", "ok");
+      } catch (error) {
+        say(error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Please try again." : error.message, "err");
+      }
+    }
+
+    async function deleteTask(id) {
+      try {
+        const response = await fetch(`${API}/tasks/${id}`, { method: "DELETE" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Unable to delete task");
+        await loadTasks();
+        say("Task deleted successfully", "ok");
+      } catch (error) {
+        say(error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Please try again." : error.message, "err");
+      }
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const title = titleInput.value.trim();
+      if (!title) {
+        say("Please enter a task name", "err");
+        return;
+      }
+      try {
+        const response = await fetch(`${API}/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Unable to create task");
+        titleInput.value = "";
+        await loadTasks();
+        say("Task created successfully", "ok");
+      } catch (error) {
+        say(error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Please try again." : error.message, "err");
+      }
+    });
+
+    loadTasks();
+  </script>
+</body>
+</html>

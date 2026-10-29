@@ -1,0 +1,56 @@
+[
+  {
+    "line": 6,
+    "row": {
+      "id": "5",
+      "name": "",
+      "marks": "77"
+    },
+    "reason": "name is blank"
+  },
+  {
+    "line": 7,
+    "row": {
+      "id": "6",
+      "name": "Esha",
+      "marks": "abc"
+    },
+    "reason": "bad value: invalid literal for int() with base 10: 'abc'"
+  },
+  {
+    "line": 8,
+    "row": {
+      "id": "7",
+      "name": "Farid",
+      "marks": "150"
+    },
+    "reason": "marks outside 0-100"
+  },
+  {
+    "line": 10,
+    "row": {
+      "id": "9",
+      "name": "adam",
+      "marks": "130"
+    },
+    "reason": "marks outside 0-100"
+  },
+  {
+    "line": 11,
+    "row": {
+      "id": "10",
+      "name": "mimi",
+      "marks": "xyz"
+    },
+    "reason": "bad value: invalid literal for int() with base 10: 'xyz'"
+  },
+  {
+    "line": 12,
+    "row": {
+      "id": "11",
+      "name": "sandy",
+      "marks": "200"
+    },
+    "reason": "marks outside 0-100"
+  }
+]

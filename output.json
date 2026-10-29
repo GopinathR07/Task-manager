@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Arun",
+    "marks": 85,
+    "result": "PASS"
+  },
+  {
+    "id": 2,
+    "name": "Bala",
+    "marks": 72,
+    "result": "PASS"
+  },
+  {
+    "id": 3,
+    "name": "Charan",
+    "marks": 91,
+    "result": "PASS"
+  },
+  {
+    "id": 4,
+    "name": "Divya",
+    "marks": 40,
+    "result": "FAIL"
+  },
+  {
+    "id": 8,
+    "name": "stacy",
+    "marks": 95,
+    "result": "PASS"
+  }
+]
